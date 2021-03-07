@@ -32,7 +32,7 @@ Vagrant.configure("2") do |config|
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
-  config.vm.network "private_network", ip: "192.168.33.11"
+  config.vm.network "private_network", ip: "192.168.33.10"
 
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
@@ -109,6 +109,14 @@ if [ $MAN_JA_INSTALLED -eq 0 ]
 then
   sudo dnf install man-pages-ja.noarch -y
 fi
+######################################################################
+# apacheのインストール
+APACHE2_INSTALLED=`sudo dnf list --installed | grep httpd | grep -v grep | wc -l`
+if [ $APACHE2_INSTALLED -eq 0 ]
+then
+  sudo dnf install httpd -y
+fi
+
 ######################################################################
 # rubyのインストール
 # 必要なパッケージのインストール
@@ -187,5 +195,26 @@ if [ $YARN_INSTALLED -eq 0 ]
 then
   npm install -g yarn
 fi
+######################################################################
+# PHPのインストール
+PHP_INSTALLED=`sudo dnf list --installed | grep php | grep -v grep | wc -l`
+if [ $PHP_INSTALLED -eq 0 ]
+then
+  sudo dnf install php php-mbstring php-pear -y
+fi
+
+######################################################################
+# Visual Studio コードは、この大きなワークスペースでのファイルの変更を監視できません
+# https://code.visualstudio.com/docs/setup/linux#_visual-studio-code-is-unable-to-watch-for-file-changes-in-this-large-workspace-error-enospc
+# cat /proc/sys/fs/inotify/max_user_watches ⇒ 現在の設定値
+# fs.inotify.max_user_watches=524288 ⇒ MAX値に設定
+SET_MAX_USER_WATCHES=`sudo grep fs.inotify.max_user_watches /etc/sysctl.conf | wc -l`
+if [ $SET_MAX_USER_WATCHES -eq 0 ]
+then
+    sudo cp -p /etc/sysctl.conf /vagrant/sysctl.conf
+    sudo sh -c 'echo fs.inotify.max_user_watches=524288 >> /etc/sysctl.conf'
+    sudo sysctl -p
+fi
+
 
 SCRIPT
