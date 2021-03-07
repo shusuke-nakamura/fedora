@@ -162,6 +162,30 @@ then
     pyenv global $PYTHON_INSTALL_VERSION
   fi
 fi
-
+######################################################################
+# node.jsのインストール
+NODE_JS_INSTALL_VERSION=v14.16.0
+if [ ! -d ~/.nodebrew ]
+then
+  curl -L git.io/nodebrew | perl - setup
+  echo 'export PATH="$HOME/.nodebrew/current/bin:$PATH"' >> ~/.bashrc
+fi
+if [ -d ~/.nodebrew/current/bin ]
+then
+  export PATH="$HOME/.nodebrew/current/bin:$PATH"
+  NODE_JS_INSTALLED_VERSION=`nodebrew list | grep $NODE_JS_INSTALL_VERSION | wc -l`
+  if [ $NODE_JS_INSTALLED_VERSION -eq 0 ]
+  then
+    nodebrew install-binary $NODE_JS_INSTALL_VERSION
+    nodebrew use $NODE_JS_INSTALL_VERSION
+  fi
+fi
+######################################################################
+# yarnのインストール
+YARN_INSTALLED=`npm ls -g | grep yarn | wc -l`
+if [ $YARN_INSTALLED -eq 0 ]
+then
+  npm install -g yarn
+fi
 
 SCRIPT
