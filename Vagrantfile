@@ -137,5 +137,31 @@ then
     echo "gem: --no-ri --no-rdoc" > ~/.gemrc
   fi
 fi
+######################################################################
+# PYTHONのインストール
+sudo dnf install make gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel -y
+PYTHON_INSTALL_VERSION=anaconda3-2020.11
+# pyenvのインストール
+if [ ! -d ~/.pyenv ]
+then
+  git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+  echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
+  echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+  echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+fi
+if [ -e ~/.pyenv/bin/pyenv ]
+then
+  export PYENV_ROOT="$HOME/.pyenv"
+  export PATH="$PYENV_ROOT/bin:$PATH"
+  eval "$(pyenv init -)"
+  # pythonのインストール
+  PYTHON_INSTALLED_VERSION=`pyenv versions | grep $PYTHON_INSTALL_VERSION | wc -l`
+  if [ $PYTHON_INSTALLED_VERSION -eq 0 ]
+  then
+    pyenv install $PYTHON_INSTALL_VERSION
+    pyenv global $PYTHON_INSTALL_VERSION
+  fi
+fi
+
 
 SCRIPT
