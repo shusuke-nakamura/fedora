@@ -205,6 +205,17 @@ then
   sudo dnf install php php-mbstring php-pear -y
 fi
 ######################################################################
+# composerのインストール
+# https://mebee.info/2020/06/02/post-10844/
+if [ ! -f /usr/local/bin/composer ]
+then
+   curl -sS https://getcomposer.org/installer | php
+   sudo mv composer.phar /usr/local/bin/composer
+   sudo chmod +x /usr/local/bin/composer
+   sudo chown root:root /usr/local/bin/composer
+   source ~/.bashrc
+fi
+######################################################################
 # Dockerのインストール
 # dnf-plugins-core
 if [ `sudo dnf list --installed | grep dnf-plugins-core | grep -v grep | wc -l` -eq 0 ]
@@ -252,6 +263,48 @@ if [ $OPEN_JDK_INSTALLED -eq 0 ]
 then
   sudo dnf install java-11-openjdk-devel -y
 fi
+# JAVA_HOMEの設定
+ENV_JAVA_HOME=`env | grep JAVA_HOME | wc -l`
+BASHRC_JAVA_HOME=`grep JAVA_HOME ~/.bashrc | wc -l`
+if [ $ENV_JAVA_HOME -eq 0 ] && [ $BASHRC_JAVA_HOME -eq 0 ]
+then
+  echo 'export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-11.0.10.0.9-0.fc33.x86_64' >> ~/.bashrc
+  source ~/.bashrc
+fi
+######################################################################
+# MariaDBのインストール
+# https://qiita.com/mwatanabe@github/items/7e9a40d31bc27ab9d901
+# https://qiita.com/nanbuwks/items/c98c51744bd0f72a7087
+# https://www.server-world.info/query?os=Fedora_33&p=mariadb&f=1
+# unix_socket の解除の仕方
+# update mysql.user set plugin='' where user='root';
+# mysql_secure_installation
+MARIA_DB_INSTALLED=`sudo dnf list --installed | grep mariadb-server | grep -v grep | wc -l`
+if [ $MARIA_DB_INSTALLED -eq 0 ]
+then
+  sudo dnf install mariadb-server -y
+fi
+if [ ! -f /etc/my.cnf.d/charset.cnf ]
+then
+cat <<EOF | sudo tee /etc/my.cnf.d/charset.cnf
+[mysqld]
+character-set-server = utf8mb4
+
+[client]
+default-character-set = utf8mb4
+EOF
+fi
+if [ `sudo systemctl is-enabled mariadb` = "disabled" ]
+then
+  sudo systemctl enable mariadb
+fi
+if [ `sudo firewall-cmd --list-services | grep mysql | grep -v grep | wc -l` -eq 0 ]
+then
+  sudo firewall-cmd --add-service=mysql --permanent
+  sudo firewall-cmd --reload
+fi
+
+
 ######################################################################
 # expectコマンドのインストール
 if [ `sudo dnf list --installed | grep expect | grep -v grep | wc -l` -eq 0 ]
