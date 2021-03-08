@@ -115,6 +115,8 @@ APACHE2_INSTALLED=`sudo dnf list --installed | grep httpd | grep -v grep | wc -l
 if [ $APACHE2_INSTALLED -eq 0 ]
 then
   sudo dnf install httpd -y
+  sudo systemctl enable httpd
+  sudo systemctl start httpd
 fi
 
 ######################################################################
@@ -221,6 +223,52 @@ then
   sudo dnf install docker-ce -y
   sudo systemctl enable docker
   sudo systemctl start docker
+fi
+######################################################################
+# MongoDBのインストール
+# https://xn--o9j8h1c9hb5756dt0ua226amc1a.com/?p=3344
+if [ ! -f /etc/yum.repos.d/mongodb.repo ]
+then
+cat <<EOF | sudo tee /etc/yum.repos.d/mongodb.repo
+[mongodb-4.4]
+name=MongoDB Repository
+baseurl=https://repo.mongodb.org/yum/redhat/7/mongodb-org/4.4/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-4.4.asc
+EOF
+fi
+# mogodbインストール
+if [ `sudo dnf list --installed | grep mongodb-org | grep -v grep |wc -l` -eq 0 ]
+then
+  sudo dnf install mongodb-org -y
+  sudo systemctl enable mongod
+  sudo systemctl start mongod
+fi
+######################################################################
+# OpenJDKのインストール
+OPEN_JDK_INSTALLED=`sudo dnf list --installed | grep java-11-openjdk-devel | grep -v grep | wc -l`
+if [ $OPEN_JDK_INSTALLED -eq 0 ]
+then
+  sudo dnf install java-11-openjdk-devel -y
+fi
+######################################################################
+# expectコマンドのインストール
+if [ `sudo dnf list --installed | grep expect | grep -v grep | wc -l` -eq 0 ]
+then
+  sudo dnf install expect -y
+fi
+######################################################################
+# tigのインストール
+if [ `sudo dnf list --installed | grep tig | grep -v grep | wc -l` -eq 0 ]
+then
+  sudo dnf install tig -y
+fi
+######################################################################
+# graphvizのインストール
+if [ `sudo dnf list --installed | grep graphviz | grep -v grep | wc -l` -eq 0 ]
+then
+  sudo dnf install graphviz -y
 fi
 
 ######################################################################
