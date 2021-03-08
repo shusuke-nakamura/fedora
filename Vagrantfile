@@ -202,6 +202,26 @@ if [ $PHP_INSTALLED -eq 0 ]
 then
   sudo dnf install php php-mbstring php-pear -y
 fi
+######################################################################
+# Dockerのインストール
+# dnf-plugins-core
+if [ `sudo dnf list --installed | grep dnf-plugins-core | grep -v grep | wc -l` -eq 0 ]
+then
+  sudo dnf install dnf-plugins-core -y
+fi
+# リポジトリの追加
+if [ ! -f /etc/yum.repos.d/docker-ce.repo ]
+then
+  sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+  sudo dnf makecache
+fi
+# docker-ceのインストール
+if [ `sudo dnf list --installed | grep docker | grep -v grep | wc -l` -eq 0 ]
+then
+  sudo dnf install docker-ce -y
+  sudo systemctl enable docker
+  sudo systemctl start docker
+fi
 
 ######################################################################
 # Visual Studio コードは、この大きなワークスペースでのファイルの変更を監視できません
