@@ -44,3 +44,9 @@ composer global require laravel/installer
 　
 3. laravelのバージョン確認
 　laravel help --version
+　
+4. アプリケーションの起動
+php artisan serve --host=0.0.0.0 --port=8000
+
+5. コントローラの作成
+php artisan make:controller HelloController
